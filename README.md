@@ -2,7 +2,7 @@
 ## Distributed Secrets Management with Multi-Party Approval
 
 ## Summary
- This design document serves as a guide for the development of the Distributed Systems course project. The document includes information such as project team, overview, requirements, design considerations, system architecture, user interface design, security measures, testing strategies, and deployment plans. It aims to provide an understanding of the project’s scope, goals and technical details.
+ This design document serves as a guide for the development of the Distributed Systems course project. The document includes information such as project team, overview, requirements, design considerations, system architecture, testing strategies, and deployment plans. It aims to provide an understanding of the project’s scope, goals and technical details.
 
 ## Introduction
 In the digital landscape, companies often safeguard sensitive information, referred to as secrets, containing data such as passwords, keys, configuration files, and credentials. Protecting these secrets is crucial, with access typically restricted to high-level employees to prevent potential disasters caused by unauthorized access.
