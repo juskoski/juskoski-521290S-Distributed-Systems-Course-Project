@@ -9,10 +9,10 @@ In the digital landscape, companies often have the need to safeguard sensitive i
 
 Most companies do not have the funding for a separate cybersecurity team and thus common practices involve insecure handling of secrets, such as storing them in plaintext files, sharing via email or chat services, or even writing them down on paper. These methods lack the necessary access control and logging mechanisms, leaving organizations vulnerable to security breaches with no means of tracing who accessed which secret and for what purpose.
 
-In response to this issue, our group has decided to design a distributed secret management system as the course project. This system will require users to obtain approval from their peers before accessing secrets, ensFring a common consensus and understanding of who accessed what. Event logging is implemented and plays a crucial role in providing a comprehensive audit trail to track every instance of secret access, along with the associated user and purpose.
+In response to this issue, our group has decided to design a distributed secret management system as the course project. This system will require users to obtain approval from their peers before accessing secrets, ensuring a common consensus and understanding of who accessed what. Event logging is implemented and plays a crucial role in providing a comprehensive audit trail to track every instance of secret access, along with the associated user and purpose.
 
 ## System Overview
-The Distributed Secrets Management with Multi-Party Approval system's central idea is to ensure that sensitive information, or secrets, can only be accessed when several authorized individuals agree (common consensus). This way no single person can access cruicial data without approval from their peers.
+The Distributed Secrets Management with Multi-Party Approval system's central idea is to ensure that sensitive information, or secrets, can only be accessed when several authorized individuals agree (common consensus). This way no single person can access crucial data without approval from their peers.
 
 The system maintains a thorough log of every instance when someone accesses a secret. This log captures important details like who accessed the secret, the purpose behind the access, and the exact time it occurred.
 
@@ -25,8 +25,8 @@ System-level requirements given by the course are:
 - The system shall have at least three nodes (e.g, containers)
 - Each node shall have a role: client, server, peer, broker, etc.
 - Participating nodes shall exchange information (messages)
-- Participating nodes shall log their behavio understandably
-- Each node shall be an independent entity and (partially) autonomus
+- Participating nodes shall log their behaviors understandably
+- Each node shall be an independent entity and (partially) autonomous
 
 Detailed requirements will be documented as individual tickets within the [Projects section of this repository](https://github.com/users/juskoski/projects/1/views/1).
 
@@ -38,7 +38,7 @@ The system architecture is outlined in the following image. Adjustments to the a
 ### Requirement/ticket naming, descriptions
 Requirement shall be documented using tickets. Ticket naming shall be clear and concise. Use titles that clearly convey the essence of the task. Avoid vague terms and provide enough information to understand the ticket at a glance. Begin the title with an action verb to indicate what needs to be done. For example, "Implement feature X", "Fix problem Y", "Test feature Z".
 
-Like the title, keep the description clear and consice. Start with a brief overview to provide context and explain why the ticket is necessary. The acceptance criteria shall be clearly outlined, bullet points can make it more readable.
+Like the title, keep the description clear and concise. Start with a brief overview to provide context and explain why the ticket is necessary. The acceptance criteria shall be clearly outlined, bullet points can make it more readable.
 
 Each ticket shall be given story points according to the following chart:
 ![Story points chart](/img/StoryPoints.png)  
@@ -49,7 +49,7 @@ The development process will incorporate Scrum methodologies, with sprints lasti
 ![Scrum cycle](/img/ScrumCycle.png)
 
 ### Code Style
-Development is mostly done using Python programming language. Code style shall follow [pep8](https://peps.python.org/pep-0008/). Additionally, imports shall be in alphabertical order and functions shall define parameter data types and return types. Flake8 (available via pip and VsCode extensions) can be used for code style related warnings.
+Development is mostly done using Python programming language. Code style shall follow [pep8](https://peps.python.org/pep-0008/). Additionally, imports shall be in alphabetical order and functions shall define parameter data types and return types. Flake8 (available via pip and VsCode extensions) can be used for code style related warnings.
 
 For example, instead of:
 ```python
@@ -65,7 +65,7 @@ def sum(a: int, b: int) -> int:
 
 
 ### Testing
-Due to time constraints and limited expertise in developing distributed systems, manual testing will be the primary testing method. Recognizing the potential for errors, each developer is responsible for testing their own code. As a risk mitigation measure, developers are required to document the steps taken to test the functionality during the merge requst process.
+Due to time constraints and limited expertise in developing distributed systems, manual testing will be the primary testing method. Recognizing the potential for errors, each developer is responsible for testing their own code. As a risk mitigation measure, developers are required to document the steps taken to test the functionality during the merge request process.
 
 ### Branching & Commits
 Every ticket shall be handled in a dedicated branch, with the branch name incorporating the ticket's ID followed by its name. For example, the branch corresponding to the ticket "Implement secret access logging #24" should be named "24-implement-secret-access-logging". Note that the "#24" is automatically assigned by GitHub. This naming convention establishes a clear audit trail, allowing easy tracking of which features were merged at a specific stages in the project.
