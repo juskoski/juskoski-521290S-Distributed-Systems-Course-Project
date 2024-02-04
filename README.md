@@ -48,6 +48,22 @@ Due to limitations with time, no ticket shall have more than 5 story points.
 The development process will incorporate Scrum methodologies, with sprints lasting one week each. Prior to each sprint, a sprint planning session shall be held. Throughout the sprint, team members shall update other members on their completed tasks, current work, and any issues they may be facing. Following the completion of each sprint, a sprint review and retrospective shall be conducted to assess and enhance the team's processes and efficiency.
 ![Scrum cycle](/img/ScrumCycle.png)
 
+### Code Style
+Development is mostly done using Python programming language. Code style shall follow [pep8](https://peps.python.org/pep-0008/). Additionally, imports shall be in alphabertical order and functions shall define parameter data types and return types. Flake8 (available via pip and VsCode extensions) can be used for code style related warnings.
+
+For example, instead of:
+```python
+def sum(a, b):
+    return a + b
+```
+
+write:
+```python
+def sum(a: int, b: int) -> int:
+    return a + b
+```
+
+
 ### Testing
 Due to time constraints and limited expertise in developing distributed systems, manual testing will be the primary testing method. Recognizing the potential for errors, each developer is responsible for testing their own code. As a risk mitigation measure, developers are required to document the steps taken to test the functionality during the merge requst process.
 
