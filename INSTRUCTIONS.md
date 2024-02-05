@@ -36,5 +36,11 @@ $ python3 manage.py runserver
 
 The server is now running and you can make HTTP requests. For example:
 ```sh
+$ curl -X POST -H "Content-Type: application/json" -d '{"username": "temp", "password":"s3cr3t"}' http://localhost:8000/register/ # Create new user
+```
+```sh
+$  curl -X POST -H "Content-Type: application/json" -d '{"username": "temp", "password":"s3cr3t"}' http://localhost:8000/login/ # Login as existing user
+```
+```sh
 $ curl "http://localhost:8000/users/" # Returns all users
 ```
