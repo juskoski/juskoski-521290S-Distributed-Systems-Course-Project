@@ -17,3 +17,24 @@ $ source /path/to/venv/bin/activate
 ```sh
 $ pip3 install -r requirements.txt
 ```
+
+### Running Django application
+Make sure you're in your WSL environment and the Python venv has been activated!
+1. Run `cd` to `/login_node`
+2. Make migrations via:
+```sh
+$ python3 manage.py makemigrations
+```
+3. Migrate via:
+```sh
+$ python3 manage.py migrate
+```
+4. Run the application via:
+```sh
+$ python3 manage.py runserver
+```
+
+The server is now running and you can make HTTP requests. For example:
+```sh
+$ curl "http://localhost:8000/users/" # Returns all users
+```

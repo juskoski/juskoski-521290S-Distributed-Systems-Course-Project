@@ -1,3 +1,4 @@
 [flake8]
 exclude =
     ./login_node/settings.py,
+    ./login_node_app/migrations/,
