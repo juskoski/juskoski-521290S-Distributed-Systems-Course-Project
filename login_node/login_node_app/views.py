@@ -80,12 +80,20 @@ def LoginUser(request: Request) -> Response:
     return Response({"token": token}, status=status.HTTP_200_OK)
 
 
-@api_view(["GET"])
-def GetActiveSessions(request: Request) -> Response:
-    # Fetch all usernames and tokens from the database
-    users = UserDataModel.objects.all().values("username", "token")
+@api_view(["POST"])
+def VerifyToken(request: Request) -> Response:
+    # Verify that the request contains access_token
+    if "access_token" not in request.data:
+        return Response({"error": "access_token is required"},
+                        status=status.HTTP_400_BAD_REQUEST)
 
-    # Exclude users without a token (only active sessions are needed)
-    active_sessions = [user for user in users if user["token"]]
+    # Verify the access token exists
+    user = UserDataModel.objects.filter(token=request.data["access_token"])
 
-    return Response(active_sessions, status=status.HTTP_200_OK)
+    if not user.exists():
+        return Response({"error": "invalid access token"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(
+        {"message": "valid access token"}, status=status.HTTP_200_OK
+    )
