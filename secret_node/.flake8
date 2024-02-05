@@ -1,0 +1,4 @@
+[flake8]
+exclude =
+    ./secret_node/settings.py,
+    ./secret_node_app/migrations/,
