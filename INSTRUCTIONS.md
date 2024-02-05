@@ -13,7 +13,11 @@ Server nodes (such as Login and Secret node) will run as Django applications.
 $ python3 venv -m /path/to/venv
 $ source /path/to/venv/bin/activate
 ```
-2. Install requirements via:
+2. Install pip requirements via:
 ```sh
 $ pip3 install -r requirements.txt
+```
+3. Install python3-django via apt:
+```sh
+$ sudo apt install python3-django
 ```
