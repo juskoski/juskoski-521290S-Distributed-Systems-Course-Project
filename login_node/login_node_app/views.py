@@ -78,3 +78,14 @@ def LoginUser(request: Request) -> Response:
     user.save()
 
     return Response({"token": token}, status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+def GetActiveSessions(request: Request) -> Response:
+    # Fetch all usernames and tokens from the database
+    users = UserDataModel.objects.all().values("username", "token")
+
+    # Exclude users without a token (only active sessions are needed)
+    active_sessions = [user for user in users if user["token"]]
+
+    return Response(active_sessions, status=status.HTTP_200_OK)
