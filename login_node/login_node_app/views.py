@@ -78,3 +78,22 @@ def LoginUser(request: Request) -> Response:
     user.save()
 
     return Response({"token": token}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def VerifyToken(request: Request) -> Response:
+    # Verify that the request contains access_token
+    if "access_token" not in request.data:
+        return Response({"error": "access_token is required"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Verify the access token exists
+    user = UserDataModel.objects.filter(token=request.data["access_token"])
+
+    if not user.exists():
+        return Response({"error": "invalid access token"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(
+        {"message": "valid access token"}, status=status.HTTP_200_OK
+    )
