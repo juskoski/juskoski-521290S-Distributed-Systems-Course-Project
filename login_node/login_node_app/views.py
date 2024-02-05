@@ -4,7 +4,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
+import crypto_utils
 import os
+
+# Define parameters for username and password
+USERNAME_MIN_LEN = 8
+PASSWORD_MIN_LEN = 8
 
 
 @api_view(["GET"])
@@ -21,11 +26,21 @@ def CreateUser(request: Request) -> Response:
         return Response({"error": "username and password are required"},
                         status=status.HTTP_400_BAD_REQUEST)
 
+    # Verify username and password meet minimum length requirements
+    if len(request.data["username"]) < USERNAME_MIN_LEN or \
+            len(request.data["password"]) < PASSWORD_MIN_LEN:
+        return Response(
+            {"error":"username and password must be at least 8 characters"},
+            status=status.HTTP_400_BAD_REQUEST)
+
     # Verify username does not already exist
     if UserDataModel.objects.filter(username=request.data["username"]).exists():
         return Response({"error": "username already exists"},
                         status=status.HTTP_400_BAD_REQUEST)
 
+    # Hash the password
+    request.data["password"] = \
+        crypto_utils.hash_password(request.data["password"].encode()).decode()
 
     serializer = UserDataModelSerializer(data=request.data)
     if serializer.is_valid():
@@ -40,9 +55,17 @@ def LoginUser(request: Request) -> Response:
         return Response({"error": "username and password are required"},
                         status=status.HTTP_400_BAD_REQUEST)
 
-    user = UserDataModel.objects.filter(username=request.data["username"],
-                                        password=request.data["password"])
+    # Fetch the user's credentials from database
+    user = UserDataModel.objects.filter(username=request.data["username"])
+
+    # Verify the user exists
     if not user.exists():
+        return Response({"error": "invalid username or password"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Verify the provided password against the stored hash
+    if not crypto_utils.verify_password(user.first().password.encode(),
+                                        request.data["password"].encode()):
         return Response({"error": "invalid username or password"},
                         status=status.HTTP_400_BAD_REQUEST)
 
