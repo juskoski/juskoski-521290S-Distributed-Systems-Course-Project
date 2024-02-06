@@ -30,7 +30,25 @@ System-level requirements given by the course are:
 
 Detailed requirements will be documented as individual tickets within the [Projects section of this repository](https://github.com/users/juskoski/projects/1/views/1).
 
-### Architecture
+## Evaluation
+Evaluiation criteria are to bound to change as the system evolves during development.
+
+System performance will be stress tested and results documented after the initial development phase.
+
+### Traffic evaluation
+- We are not expecting a lot of traffic through the system
+    - Maximum amount of traffic occurs when someone requests access to a secret and other client are informed
+    - Even then traffic is going to be light
+- Number of messages are also going to be relatively low, peaking when a human is interacting with the system
+- Number of log messages are most likely going to be high and detailed due to the nature of the system
+    - Who accessed what, when, why
+    - Who approved the access
+    - Who created a new key, why, when?
+- Secrets the system will store are essentially strings of characters
+    - Not going to require high throughput
+
+
+## Architecture
 The system architecture is outlined in the following image. Adjustments to the architecture may take place as the requirements are planned and development progresses.
 ![Architecture diagram](/img/DistributedSystemArchitectureV1.png)
 
@@ -62,7 +80,6 @@ write:
 def sum(a: int, b: int) -> int:
     return a + b
 ```
-
 
 ### Testing
 Due to time constraints and limited expertise in developing distributed systems, manual testing will be the primary testing method. Recognizing the potential for errors, each developer is responsible for testing their own code. As a risk mitigation measure, developers are required to document the steps taken to test the functionality during the merge request process.
