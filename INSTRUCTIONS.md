@@ -17,6 +17,10 @@ $ source /path/to/venv/bin/activate
 ```sh
 $ pip3 install -r requirements.txt
 ```
+3. Install python3-django via apt:
+```sh
+$ sudo apt install python3-django
+```
 
 ### Running Django application
 Make sure you're in your WSL environment and the Python venv has been activated!
@@ -43,8 +47,33 @@ $  curl -X POST -H "Content-Type: application/json" -d '{"username": "temp", "pa
 ```
 ```sh
 $ curl "http://localhost:8000/users/" # Returns all users
-=======
-3. Install python3-django via apt:
-```sh
-$ sudo apt install python3-django
 ```
+
+### Running the system
+0. Enter the WSL, start the virtual environment, make sure pip requirements are installed
+1. Run the Login node:
+```sh
+$ python3 login_node/manage.py makemigrations
+$ python3 login_node/manage.py migrate
+$ python3 login_node/manage.py runserver 8080
+```
+2. Run the Secret node:
+```sh
+$ python3 secret_node/manage.py makemigrations
+$ python3 secret_node/manage.py migrate
+$ python3 secret_node/manage.py runserver 8081
+```
+
+#### Requesting secrets
+1. Create new user
+    - Endpoint: http://localhost:8080/register/
+    - Parameters: {"username", "YOUR NAME", "password", "YOUR PASS"}
+    - Returns `HTTP 200` if user was created, otherwise `HTTP 400`
+2. Login as a valid user
+    - Endpoint: http://localhost:8081/login/
+    - Parameters: {"username", "YOUR NAME", "password", YOUR PASS"}
+    - Returns `access_token` if login was successful, otherwise `HTTP 400`
+3. Request a secret using `access_token`:
+    - Endpoint: http://localhost:8080/request-secret/
+    - Parameters: {"secret_name": "SECRET", "access_token": "`access_token`"}
+    - Returns `HTTP 200` if the `access_token` is valid and the secret is found, otherwise `HTTP 400`

@@ -11,4 +11,4 @@ urlpatterns = [
     path('register/', CreateUser, name='user-register'),
     path('login/', LoginUser, name='user-login'),
     path('verify-token/', VerifyToken, name='active-sessions')
-]
+    ]
