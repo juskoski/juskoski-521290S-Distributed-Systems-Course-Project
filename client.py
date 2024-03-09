@@ -1,12 +1,19 @@
 #!/bin/python3
+from enum import Enum
+from typing import Dict
 import requests
+
+class MenuOptions(Enum):
+    CREATE_ACCOUNT = 1
+    LOGIN = 2
+    REQUEST_SECRET = 3
+    CREATE_SECRET = 4
+    EXIT = 5
 
 REGISTER_URL = "http://localhost:8080/register/"
 LOGIN_URL = "http://localhost:8080/login/"
-
-access_token = ""
-username = ""
-password = ""
+CREATE_SECRET_URL = "http://localhost:8081/create-secret/"
+REQUEST_SECRET_URL = "http://localhost:8081/request-secret/"
 
 
 def create_account() -> None:
@@ -35,33 +42,59 @@ def create_account() -> None:
 
     if response.status_code == 201:
         print("Account created successfully. Please login.")
-        login()
     else:
         print("Failed to create account:",  response.json()["error"])
 
 
-def handle_menu_choice(choice: int) -> None:
+def create_secret(access_token: str) -> None:
+    """
+    Create a new secret by sending a POST request to the server.
+    """
+    print("\nPlease enter the name of the secret and the secret itself.")
+    secret_name = ""
+    while len(secret_name) < 5:
+        secret_name = input("Secret name: ")
+        if len(secret_name) < 5:
+            print("Secret name must be at least 5 characters long.")
+
+    secret = ""
+    while len(secret) < 8:
+        secret = input("Secret: ")
+        if len(secret) < 8:
+            print("Secret must be at least 8 characters long.")
+
+    # Send the secret name and secret to the server
+    data = {"secret_name": secret_name,
+            "secret": secret,
+            "access_token": access_token}
+    response = requests.post(CREATE_SECRET_URL,
+                             json=data)
+
+    if response.status_code == 201:
+        print("Secret created successfully.")
+    else:
+        print("Failed to create secret:",  response.json()["error"])
+
+
+def handle_menu_choice(choice: int, user: Dict) -> None:
     """
     Handle the user's choice from the menu.
     """
-    if choice == 1:
+    if choice == MenuOptions.CREATE_ACCOUNT.value:
         create_account()
-    elif choice == 2:
-        login()
-        pass
-    elif choice == 3:
-        pass
-        #request_secret()
-    elif choice == 4:
-        #create_secret()
-        pass
-    elif choice == 5:
+    elif choice == MenuOptions.LOGIN.value:
+        login(user)
+    elif choice == MenuOptions.REQUEST_SECRET.value:
+        request_secret(user["access_token"])
+    elif choice == MenuOptions.CREATE_SECRET.value:
+        create_secret(user["access_token"])
+    elif choice == MenuOptions.EXIT.value:
         exit()
     else:
         print("Invalid choice. Please try again.")
 
 
-def login() -> None:
+def login(user: Dict) -> str:
     """
     Login to the server by sending a POST request with the username and
     password.
@@ -78,8 +111,13 @@ def login() -> None:
     if response.status_code == 200:
         print("Login successful.")
         access_token = response.json()["token"]
+        user["username"] = username
+        user["password"] = password
+        user["access_token"] = access_token
+        return access_token
     else:
         print("Failed to login:",  response.json()["error"])
+        return ""
 
 
 def main() -> None:
@@ -87,8 +125,11 @@ def main() -> None:
     Main function to run the client application.
     """
     print("Welcome to Distributed Secrets Management System!")
+
+    user = {"username": "", "password": "", "access_token": ""}
+
     while (True):
-        handle_menu_choice(print_menu())
+        handle_menu_choice(print_menu(), user)
 
 
 def print_menu() -> int:
@@ -96,17 +137,40 @@ def print_menu() -> int:
     Print the menu and return the user's choice.
     """
     print("\nPlease select an option from the following menu:")
-    print("1. Create an account")
-    print("2. Login")
-    print("3. Request access to a secret")
-    print("4. Create a secret")
-    print("5. Exit")
+    print(MenuOptions.CREATE_ACCOUNT.value, "Create an account")
+    print(MenuOptions.LOGIN.value, "Login")
+    print(MenuOptions.REQUEST_SECRET.value, "Request access to a secret")
+    print(MenuOptions.CREATE_SECRET.value, "Create a secret")
+    print(MenuOptions.EXIT.value, "Exit")
     choice = input("Enter your choice: ")
 
     if choice.isdigit():
         return int(choice)
     else:
         return -1
+
+
+def request_secret(access_token: str) -> None:
+    """
+    Request access to a secret by sending a POST request to the server.
+    """
+    print("\nPlease enter the name of the secret you want to access.")
+    secret_name = ""
+    while len(secret_name) < 5:
+        secret_name = input("Secret name: ")
+        if len(secret_name) < 5:
+            print("Secret name must be at least 5 characters long.")
+
+    # Send the secret name and access token to the server
+    data = {"secret_name": secret_name,
+            "access_token": access_token}
+    response = requests.post(REQUEST_SECRET_URL,
+                             json=data)
+
+    if response.status_code == 200:
+        print("Secret:", response.json()["secret"])
+    else:
+        print("Failed to access secret:",  response.json()["error"])
 
 
 if __name__ == "__main__":

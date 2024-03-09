@@ -51,12 +51,14 @@ def CreateSecret(request: Request) -> Response:
 
     # Verify the token is valid
     token_data = {"access_token": request.data["access_token"]}
+    print("TOKEN DATA", token_data)
     response = requests.post(VERIFY_TOKEN_URL, data=token_data)
 
     # Return an error if the token is invalid
     if response.status_code != 200:
         return Response(
-            {"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED
+            {"error": response.json()["error"]},
+            status=status.HTTP_401_UNAUTHORIZED
         )
 
     # Check if the secret already exists
