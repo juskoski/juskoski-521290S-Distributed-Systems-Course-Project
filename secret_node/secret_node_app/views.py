@@ -11,6 +11,8 @@ import requests
 # Remember to start the Login node before running the following code
 VERIFY_TOKEN_URL = "http://localhost:8080/verify-token/"
 
+VOTE_YAY_THRESHOLD = 2
+
 
 @api_view(["GET"])
 def GetVotes(request: Request) -> Response:
@@ -159,6 +161,20 @@ def RequestAccessToSecret(request: Request) -> Response:
             {"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED
         )
 
+    # Verify the vote has passed
+    secret = SecretModel.objects.get(name=request.data["secret_name"])
+    vote = VoteModel.objects.get(secret_name=request.data["secret_name"])
+    if vote.yay_count < VOTE_YAY_THRESHOLD:
+        return Response(
+            {"error": "Vote has not passed"}, status=status.HTTP_409_CONFLICT
+        )
+
+    # Verify the vote starter is trying to access the secret
+    if request.data["username"] != vote.username:
+        return Response(
+            {"error": "User cannot access secret"}, status=status.HTTP_409_CONFLICT
+        )
+
     # Check if the secret exists
     if not SecretModel.objects.filter(name=request.data["secret_name"]).exists():
         return Response(
@@ -168,6 +184,9 @@ def RequestAccessToSecret(request: Request) -> Response:
 
     # Get the secret from the database
     secret = SecretModel.objects.get(name=request.data["secret_name"])
+
+    # Delete the vote
+    vote.delete()
 
     # Return the secret
     return Response({"secret": secret.secret}, status=status.HTTP_200_OK)

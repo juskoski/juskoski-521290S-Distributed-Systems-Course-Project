@@ -9,7 +9,10 @@ class MenuOptions(Enum):
     REQUEST_SECRET = 3
     CREATE_SECRET = 4
     VIEW_VOTES = 5
-    EXIT = 6
+    VIEW_YOUR_REQUEST = 6
+    EXIT = 7
+
+VOTE_COUNT_YAY_THRESHOLD = 2
 
 REGISTER_URL = "http://localhost:8080/register/"
 LOGIN_URL = "http://localhost:8080/login/"
@@ -95,6 +98,8 @@ def handle_menu_choice(choice: int, user: Dict) -> None:
         create_secret(user["access_token"])
     elif choice == MenuOptions.VIEW_VOTES.value:
         view_votes(user["access_token"], user["username"])
+    elif choice == MenuOptions.VIEW_YOUR_REQUEST.value:
+        view_user_requests(user["access_token"], user["username"])
     elif choice == MenuOptions.EXIT.value:
         exit()
     else:
@@ -149,6 +154,7 @@ def print_menu() -> int:
     print(MenuOptions.REQUEST_SECRET.value, "Request access to a secret")
     print(MenuOptions.CREATE_SECRET.value, "Create a secret")
     print(MenuOptions.VIEW_VOTES.value, "View votes")
+    print(MenuOptions.VIEW_YOUR_REQUEST.value, "View your request")
     print(MenuOptions.EXIT.value, "Exit")
     choice = input("Enter your choice: ")
 
@@ -198,6 +204,54 @@ def request_secret(access_token: str, username: str) -> None:
         print(response.json()["message"])
     else:
         print("Failed to access secret:",  response.json()["error"])
+
+
+def view_user_requests(access_token: str, username: str) -> None:
+    """
+    View the requests by sending a GET request to the server.
+    """
+    print("\nViewing your requests:")
+
+    # Send the access token to the server
+    data = {"access_token": access_token}
+    response = requests.get(GET_VOTES_URL,
+                            data=data)
+
+    if response.status_code != 200:
+        print("Failed to view requests:",  response.json()["error"])
+        return
+
+    votes = response.json()["votes"]
+
+    if len(votes) == 0:
+        print("No requests found.")
+        return
+
+    for vote in votes:
+        if username == vote["username"]:
+            vote_str = "Your request for secret \"" + vote["secret_name"] + \
+                       "\" has " + str(vote["yay_count"]) + " yays and " + \
+                        str(vote["nay_count"]) + " nays."
+            if vote["yay_count"] >= VOTE_COUNT_YAY_THRESHOLD:
+                print("Would you like to view the secret for \"" + \
+                      vote["secret_name"] + \
+                      "\" (y/n)")
+                view_secret = ""
+                while view_secret.lower() != "y" and view_secret.lower() != "n":
+                    view_secret = input()
+                    if view_secret.lower() == "y":
+                        data = {"secret_name": vote["secret_name"],
+                                "access_token": access_token,
+                                "username": username}
+                        response = requests.post(REQUEST_SECRET_URL,
+                                                json=data)
+                        if response.status_code == 200:
+                            print("Secret:", response.json()["secret"])
+                        else:
+                            print("Failed to view secret:",  response.json()["error"])
+                        break
+                    elif view_secret.lower() == "n":
+                        break
 
 
 def view_votes(access_token: str, username: str) -> None:
