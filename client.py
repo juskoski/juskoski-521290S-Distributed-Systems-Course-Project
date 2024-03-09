@@ -8,7 +8,8 @@ class MenuOptions(Enum):
     LOGIN = 2
     REQUEST_SECRET = 3
     CREATE_SECRET = 4
-    EXIT = 5
+    VIEW_VOTES = 5
+    EXIT = 6
 
 REGISTER_URL = "http://localhost:8080/register/"
 LOGIN_URL = "http://localhost:8080/login/"
@@ -16,6 +17,9 @@ CREATE_SECRET_URL = "http://localhost:8081/create-secret/"
 REQUEST_SECRET_URL = "http://localhost:8081/request-secret/"
 REQUEST_SECRET_NAMES_URL = "http://localhost:8081/get-secret-names/"
 
+START_VOTE_URL = "http://localhost:8081/start-vote/"
+GET_VOTES_URL = "http://localhost:8081/get-votes/"
+GIVE_VOTE_URL = "http://localhost:8081/give-vote/"
 
 def create_account() -> None:
     """
@@ -86,9 +90,11 @@ def handle_menu_choice(choice: int, user: Dict) -> None:
     elif choice == MenuOptions.LOGIN.value:
         login(user)
     elif choice == MenuOptions.REQUEST_SECRET.value:
-        request_secret(user["access_token"])
+        request_secret(user["access_token"], user["username"])
     elif choice == MenuOptions.CREATE_SECRET.value:
         create_secret(user["access_token"])
+    elif choice == MenuOptions.VIEW_VOTES.value:
+        view_votes(user["access_token"], user["username"])
     elif choice == MenuOptions.EXIT.value:
         exit()
     else:
@@ -142,6 +148,7 @@ def print_menu() -> int:
     print(MenuOptions.LOGIN.value, "Login")
     print(MenuOptions.REQUEST_SECRET.value, "Request access to a secret")
     print(MenuOptions.CREATE_SECRET.value, "Create a secret")
+    print(MenuOptions.VIEW_VOTES.value, "View votes")
     print(MenuOptions.EXIT.value, "Exit")
     choice = input("Enter your choice: ")
 
@@ -151,7 +158,7 @@ def print_menu() -> int:
         return -1
 
 
-def request_secret(access_token: str) -> None:
+def request_secret(access_token: str, username: str) -> None:
     """
     Request access to a secret by sending a POST request to the server.
     """
@@ -182,15 +189,92 @@ def request_secret(access_token: str) -> None:
 
     # Send the secret name and access token to the server
     data = {"secret_name": secret_name,
-            "access_token": access_token}
-    response = requests.post(REQUEST_SECRET_URL,
+            "access_token": access_token,
+            "username": username,}
+    response = requests.post(START_VOTE_URL,
                              json=data)
 
     if response.status_code == 200:
-        print("Secret:", response.json()["secret"])
+        print(response.json()["message"])
     else:
         print("Failed to access secret:",  response.json()["error"])
 
+
+def view_votes(access_token: str, username: str) -> None:
+    """
+    View the votes by sending a GET request to the server.
+    """
+    print("\nViewing votes:")
+
+    # Send the access token to the server
+    data = {"access_token": access_token}
+    response = requests.get(GET_VOTES_URL,
+                            data=data)
+
+    if response.status_code != 200:
+        print("Failed to view votes:",  response.json()["error"])
+        return
+
+    votes = response.json()["votes"]
+
+    # Find votes that the user has not voted on
+    available_vote_found = False
+    for i, vote in enumerate(votes):
+        if username in vote["voted_users"]:
+            # User has already voted on this vote
+            continue
+        if username in vote["username"]:
+            # User cannot vote on their own vote
+            continue
+        vote_str = "Vote started by \"" + vote["username"] + \
+                   "\" for secret \"" + vote["secret_name"] + "\""
+        print(i+1, vote_str)
+        available_vote_found = True
+
+    if not available_vote_found:
+        print("No available votes to vote on.")
+        return
+
+    choice = 0
+    while(True):
+        choice = input("\nEnter a vote number to vote or \"exit\" to exit: ")
+
+        if choice.isdigit():
+            choice = int(choice)
+        elif choice.lower() == "exit":
+            return -1
+        else:
+            print("Invalid choice. Please try again.")
+            continue
+
+        # Check if valid choice was made
+        if choice < 1 or choice > len(votes):
+            print("Invalid choice. Please try again.")
+            continue
+
+        # Ask if the user wants to vote yay or nay
+        vote_choice = input("Enter \"yay\" or \"nay\" to vote: ")
+        if vote_choice.lower() == "yay":
+            vote = "yay"
+        elif vote_choice.lower() == "nay":
+            vote = "nay"
+        else:
+            print("Invalid vote. Please try again.")
+            continue
+
+        # Send the vote
+        data = {"secret_name": votes[choice-1]["secret_name"],
+                "vote": vote,
+                "access_token": access_token,
+                "username": username}
+        response = requests.post(GIVE_VOTE_URL,
+                                json=data)
+
+        if response.status_code == 200:
+            print("Vote cast successfully.")
+        else:
+            print("Failed to cast vote:",  response.json()["error"])
+        break
 
 if __name__ == "__main__":
     main()
