@@ -277,7 +277,7 @@ def view_votes(access_token: str, username: str) -> None:
         if username in vote["voted_users"]:
             # User has already voted on this vote
             continue
-        if username in vote["username"]:
+        if username == vote["username"]:
             # User cannot vote on their own vote
             continue
         vote_str = "Vote started by \"" + vote["username"] + \
