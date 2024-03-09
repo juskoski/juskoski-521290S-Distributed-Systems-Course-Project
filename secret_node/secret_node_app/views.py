@@ -6,7 +6,7 @@ from rest_framework import status
 import requests
 
 # Remember to start the Login node before running the following code
-VERIFY_TOKEN_URL = "http://localhost:8000/verify-token/"
+VERIFY_TOKEN_URL = "http://localhost:8080/verify-token/"
 
 
 @api_view(["POST"])

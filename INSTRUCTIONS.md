@@ -38,17 +38,6 @@ $ python3 manage.py migrate
 $ python3 manage.py runserver
 ```
 
-The server is now running and you can make HTTP requests. For example:
-```sh
-$ curl -X POST -H "Content-Type: application/json" -d '{"username": "temp", "password":"s3cr3t"}' http://localhost:8000/register/ # Create new user
-```
-```sh
-$  curl -X POST -H "Content-Type: application/json" -d '{"username": "temp", "password":"s3cr3t"}' http://localhost:8000/login/ # Login as existing user
-```
-```sh
-$ curl "http://localhost:8000/users/" # Returns all users
-```
-
 ### Running the system
 0. Enter the WSL, start the virtual environment, make sure pip requirements are installed
 1. Run the Login node:
@@ -64,7 +53,14 @@ $ python3 secret_node/manage.py migrate
 $ python3 secret_node/manage.py runserver 8081
 ```
 
-#### Requesting secrets
+### Accessing the system
+Run
+```sh
+$ python3 client.py
+```
+to start a session.
+
+#### Using the service via HTTP
 1. Create new user
     - Endpoint: http://localhost:8080/register/
     - Parameters: {"username", "YOUR NAME", "password", "YOUR PASS"}
@@ -73,7 +69,11 @@ $ python3 secret_node/manage.py runserver 8081
     - Endpoint: http://localhost:8081/login/
     - Parameters: {"username", "YOUR NAME", "password", YOUR PASS"}
     - Returns `access_token` if login was successful, otherwise `HTTP 400`
-3. Request a secret using `access_token`:
+3. Post a new secret
+    - Endpoint: http://localhost:8080/create-secret/
+    - Parameters: {"secret_name": "SECRET", "secret": "VALUE", "access_token": "`access_token`""}'
+    - Returns `HTTP 200` if the secret was created, `HTTP 409` if the secret already exists, and `HTTP 400` in other scenarios.
+4. Request a secret using `access_token`:
     - Endpoint: http://localhost:8080/request-secret/
     - Parameters: {"secret_name": "SECRET", "access_token": "`access_token`"}
     - Returns `HTTP 200` if the `access_token` is valid and the secret is found, otherwise `HTTP 400`
