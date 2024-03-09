@@ -77,3 +77,19 @@ def CreateSecret(request: Request) -> Response:
 
     # Return the secret
     return Response({"secret": secret.secret}, status=status.HTTP_201_CREATED)
+
+
+@api_view (["POST"])
+def GetSecretNames(request: Request) -> Response:
+    # Verify the request contains a valid token
+    if "access_token" not in request.data:
+        # Return an error if the request is missing required fields
+        return Response({"error": "Missing required fields"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Get all the secret names from the database
+    secret_names = SecretModel.objects.values_list("name", flat=True)
+
+    # Return the secret names
+    return Response({"secret_names": list(secret_names)},
+                    status=status.HTTP_200_OK)

@@ -14,6 +14,7 @@ REGISTER_URL = "http://localhost:8080/register/"
 LOGIN_URL = "http://localhost:8080/login/"
 CREATE_SECRET_URL = "http://localhost:8081/create-secret/"
 REQUEST_SECRET_URL = "http://localhost:8081/request-secret/"
+REQUEST_SECRET_NAMES_URL = "http://localhost:8081/get-secret-names/"
 
 
 def create_account() -> None:
@@ -155,11 +156,29 @@ def request_secret(access_token: str) -> None:
     Request access to a secret by sending a POST request to the server.
     """
     print("\nPlease enter the name of the secret you want to access.")
-    secret_name = ""
-    while len(secret_name) < 5:
-        secret_name = input("Secret name: ")
-        if len(secret_name) < 5:
-            print("Secret name must be at least 5 characters long.")
+    print("Available secrets:")
+    secrets = {}
+    data = {"access_token": access_token}
+    response = requests.post(REQUEST_SECRET_NAMES_URL, data=data)
+    if response.status_code == 200:
+        secret_names = response.json()["secret_names"]
+        for i, secret_name in enumerate(secret_names):
+            print(i+1, secret_name)
+            secrets[i+1] = secret_name
+
+    choice = -1
+    while choice == -1:
+        choice = input("Select a secret: ")
+        if choice.isdigit():
+            choice = int(choice)
+            if choice not in secrets.keys():
+                print("Invalid secret name. Please try again.")
+                choice = -1
+                for i, secret_name in secrets.items():
+                    print(i, secret_name)
+        else:
+            print("Invalid secret name. Please try again.")
+            choice = -1
 
     # Send the secret name and access token to the server
     data = {"secret_name": secret_name,
