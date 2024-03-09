@@ -6,10 +6,13 @@ from rest_framework.request import Request
 from rest_framework import status
 import crypto_utils
 import os
+import requests
 
 # Define parameters for username and password
 USERNAME_MIN_LEN = 8
 PASSWORD_MIN_LEN = 8
+
+LOGGING_NODE_URL = "http://localhost:8082/logging/"
 
 
 @api_view(["GET"])
@@ -42,10 +45,18 @@ def CreateUser(request: Request) -> Response:
     request.data["password"] = \
         crypto_utils.hash_password(request.data["password"].encode()).decode()
 
+    # Log the event
+    log_data = {
+        "username": request.data["username"],
+        "action": "create user",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
+
     serializer = UserDataModelSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -77,6 +88,13 @@ def LoginUser(request: Request) -> Response:
     user.token = token
     user.save()
 
+    # Log the event
+    log_data = {
+        "username": request.data["username"],
+        "action": "login",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
+
     return Response({"token": token}, status=status.HTTP_200_OK)
 
 
@@ -93,6 +111,12 @@ def VerifyToken(request: Request) -> Response:
     if not user.exists():
         return Response({"error": "invalid access token"},
                         status=status.HTTP_400_BAD_REQUEST)
+
+    # Log the event
+    log_data = {
+        "action": "Verified access token",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
 
     return Response(
         {"message": "valid access token"}, status=status.HTTP_200_OK

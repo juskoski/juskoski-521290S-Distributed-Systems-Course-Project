@@ -10,6 +10,7 @@ import requests
 
 # Remember to start the Login node before running the following code
 VERIFY_TOKEN_URL = "http://localhost:8080/verify-token/"
+LOGGING_NODE_URL = "http://localhost:8082/logging/"
 
 VOTE_YAY_THRESHOLD = 2
 
@@ -34,6 +35,12 @@ def GetVotes(request: Request) -> Response:
 
     # Get all the votes from the database
     votes = VoteModel.objects.all()
+
+    # Log the event
+    log_data = {
+        "action": "Get votes",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
 
     # Return the votes
     return Response({"votes": list(votes.values())}, status=status.HTTP_200_OK)
@@ -99,6 +106,13 @@ def GiveVote(request: Request) -> Response:
     # Save the vote to the database
     vote_instance.save()
 
+    # Log the event
+    log_data = {
+        "username": request.data["username"],
+        "action": "voted",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
+
     # Return the vote
     return Response({
         "vote": {
@@ -138,6 +152,13 @@ def StartVote(request: Request) -> Response:
                     yay_count=0,
                     nay_count=0)
     vote.save()
+
+    # Log the event
+    log_data = {
+        "username": request.data["username"],
+        "action": "started vote",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
 
     # Start the vote
     return Response({"message": "Vote started"}, status=status.HTTP_200_OK)
@@ -188,6 +209,13 @@ def RequestAccessToSecret(request: Request) -> Response:
     # Delete the vote
     vote.delete()
 
+    # Log the event
+    log_data = {
+        "username": request.data["username"],
+        "action": "requested access to secret",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
+
     # Return the secret
     return Response({"secret": secret.secret}, status=status.HTTP_200_OK)
 
@@ -226,6 +254,12 @@ def CreateSecret(request: Request) -> Response:
     # Save the secret to the database
     secret.save()
 
+    # Log the event
+    log_data = {
+        "action": "created secret",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
+
     # Return the secret
     return Response({"secret": secret.secret}, status=status.HTTP_201_CREATED)
 
@@ -240,6 +274,12 @@ def GetSecretNames(request: Request) -> Response:
 
     # Get all the secret names from the database
     secret_names = SecretModel.objects.values_list("name", flat=True)
+
+    # Log the event
+    log_data = {
+        "action": "get secret names",
+    }
+    requests.post(LOGGING_NODE_URL, data=log_data)
 
     # Return the secret names
     return Response({"secret_names": list(secret_names)},
