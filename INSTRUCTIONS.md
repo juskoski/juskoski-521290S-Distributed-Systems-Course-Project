@@ -42,15 +42,24 @@ $ python3 manage.py runserver
 0. Enter the WSL, start the virtual environment, make sure pip requirements are installed
 1. Run the Login node:
 ```sh
+# Terminal 1
 $ python3 login_node/manage.py makemigrations
 $ python3 login_node/manage.py migrate
 $ python3 login_node/manage.py runserver 8080
 ```
 2. Run the Secret node:
 ```sh
+# Termianl 2
 $ python3 secret_node/manage.py makemigrations
 $ python3 secret_node/manage.py migrate
 $ python3 secret_node/manage.py runserver 8081
+```
+3. Run the Monitoring node
+```sh
+# Terminal 3
+$ python3 logging_node/manage.py makemigrations
+$ python3 logging_node/manage.py migrate
+$ python3 logging_node/manage.py runserver 8082
 ```
 
 ### Accessing the system
@@ -59,6 +68,9 @@ Run
 $ python3 client.py
 ```
 to start a session.
+
+### Traffic evaluation
+You can evaluate how much traffic the service can withstand using `traffic_evaluation.py`. Adjust the `CLIENT_AMOUNT` and `KEY_AMOUNT_PER_CLIENT`.
 
 #### Using the service via HTTP
 1. Create new user
